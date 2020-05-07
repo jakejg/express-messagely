@@ -1,6 +1,9 @@
 const express = require('express');
 const router = new express.Router();
 const User = require("../models/user");
+const jwt = require("jsonwebtoken")
+const ExpressError = require("../expressError")
+const { SECRET_KEY } = require("../config")
 
 
 
@@ -10,20 +13,31 @@ const User = require("../models/user");
  *
  **/
 router.post('/login', async (req, res, next) => {
-    const { username, password } = req.body
-    const u = await User.authenticate(username, password)
-    console.log(u)
-    debugger
+    try{
+        const { username, password } = req.body
+        const auth = await User.authenticate(username, password)
+        if (auth) {
+            const user = await User.get(username)
+            user.updateLoginTimestamp()
+            await user.save()
+
+            const payload = {
+                username: user.username,
+                name: user.firstName
+            }
+            const token = jwt.sign(payload, SECRET_KEY)  
+            return res.json({token})
+        }
+        else{
+            throw new ExpressError("Password/username do not match", 400)
+        }  
+    }
+    catch(e){
+        next(e)
+    }                       
+    
 })
 
-router.post('/update/:user', async (req, res, next) => {
-
-    const u = await User.get(req.params.user)
-    u.updateLoginTimestamp()
-    u.save()
-    console.log(u)
-    debugger
-})
 
 /** POST /register - register user: registers, logs in, and returns token.
  *
@@ -41,4 +55,3 @@ router.post('/update/:user', async (req, res, next) => {
 
  module.exports = router
 
- 

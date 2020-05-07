@@ -30,10 +30,10 @@ app.use("/users", userRoutes);
 
 /** 404 handler */
 
-// app.use(function(req, res, next) {
-//   const err = new ExpressError("Not Found", 404);
-//   return next(err);
-// });
+app.use(function(req, res, next) {
+  const err = new ExpressError("Not Found", 404);
+  return next(err);
+});
 
 /** general error handler */
 
