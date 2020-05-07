@@ -90,7 +90,22 @@ class User {
      *   {username, first_name, last_name, phone}
      */
 
-    async messagesFrom(username) { }
+    async messagesFrom() { 
+        const results = await db.query(`SELECT id, to_username, body, sent_at, read_at
+                                FROM messages
+                                WHERE from_username=$1`,
+                                [this.username])
+        for (let row of results.rows) {
+            const toUser = await db.query(`SELECT username, first_name AS "firstName", 
+                                last_name AS "lastName", phone
+                                FROM users
+                                WHERE username=$1`,
+                                [row.to_username])
+
+            row.to_username = toUser.rows[0]
+        }
+        return results.rows
+    }
 
     /** Return messages to this user.
      *
@@ -100,7 +115,22 @@ class User {
      *   {id, first_name, last_name, phone}
      */
 
-    static async messagesTo(username) { }
+    async messagesTo() {
+        const results = await db.query(`SELECT id, from_username, body, sent_at, read_at
+                                FROM messages
+                                WHERE from_username=$1`,
+                                [this.username])
+        for (let row of results.rows) {
+            const toUser = await db.query(`SELECT username, first_name AS "firstName", 
+                                last_name AS "lastName", phone
+                                FROM users
+                                WHERE username=$1`,
+                                [row.from_username])
+
+            row.from_username = toUser.rows[0]
+        }
+        return results.rows
+     }
 
     async save() {
         try{
