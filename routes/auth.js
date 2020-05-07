@@ -15,6 +15,9 @@ const { SECRET_KEY } = require("../config")
 router.post('/login', async (req, res, next) => {
     try{
         const { username, password } = req.body
+        if ( password === undefined){
+            throw new ExpressError("Must send a username and password with valid JSON", 400)
+        }
         const auth = await User.authenticate(username, password)
         if (auth) {
             const user = await User.get(username)
@@ -47,10 +50,22 @@ router.post('/login', async (req, res, next) => {
  */
 
  router.post('/register', async (req, res, next) => {
-     const u = await User.register(req.body)
-     console.log(u)
-     await u.save()
-     debugger
+    try{
+        const user = await User.register(req.body)
+      
+        await user.save()
+        
+        const payload = {
+            username: user.username,
+            name: user.firstName
+        }
+        const token = jwt.sign(payload, SECRET_KEY)  
+        return res.json({token})
+    }
+    catch(e){
+        next(e)
+    }
+
  })
 
  module.exports = router

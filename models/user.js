@@ -136,12 +136,14 @@ class User {
     async save() {
         try{
             if (this.joinedAt === undefined) {
+                console.log(this)
               const result = await db.query(
                 `INSERT INTO users (username, password, first_name, last_name, phone, join_at, last_login_at )
                      VALUES ($1, $2, $3, $4, $5, $6, $7)
                      RETURNING join_at, last_login_at`,
                 [this.username, this.password, this.firstName, this.lastName, this.phone, new Date(), new Date()]
               );
+              
               this.joinAt = result.rows[0].join_at;
               this.lastLoginAt = result.rows[0].last_login_at;
             
@@ -154,8 +156,8 @@ class User {
             }
         }
         catch(e) {
-            if (e.code === 23505){
-                throw new Error
+            if (e.code === '23505'){
+               throw new ExpressError("Username Taken", 400)
             }
         }
     }
