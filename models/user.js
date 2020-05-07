@@ -73,7 +73,7 @@ class User {
 
     static async all() { 
         const results = await db.query(
-            `SELECT username, password,
+            `SELECT username,
               first_name AS "firstName", 
               last_name AS "lastName", 
               phone
@@ -134,9 +134,10 @@ class User {
      }
 
     async save() {
+        
         try{
-            if (this.joinedAt === undefined) {
-                console.log(this)
+            if (this.joinAt === undefined) {
+                
               const result = await db.query(
                 `INSERT INTO users (username, password, first_name, last_name, phone, join_at, last_login_at )
                      VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -148,6 +149,7 @@ class User {
               this.lastLoginAt = result.rows[0].last_login_at;
             
             } else {
+              
                 await db.query(
                     `UPDATE users SET password=$2, first_name=$3, last_name=$4, phone=$5, last_login_at=$6
                     WHERE username=$1`,
