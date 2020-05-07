@@ -3,7 +3,7 @@ const User = require("../models/user");
 const Message = require("../models/message");
 
 
-describe("Test Message class", async function () {
+describe("Test Message class", function () {
 
   beforeEach(async function () {
     await db.query("DELETE FROM messages");
@@ -13,17 +13,19 @@ describe("Test Message class", async function () {
     let u1 = await User.register({
       username: "test1",
       password: "password",
-      first_name: "Test1",
-      last_name: "Testy1",
+      firstName: "Test1",
+      lastName: "Testy1",
       phone: "+14155550000",
     });
+    await u1.save()
     let u2 = await User.register({
       username: "test2",
       password: "password",
-      first_name: "Test2",
-      last_name: "Testy2",
+      firstName: "Test2",
+      lastName: "Testy2",
       phone: "+14155552222",
     });
+    await u2.save()
     let m1 = await Message.create({
       from_username: "test1",
       to_username: "test2",
