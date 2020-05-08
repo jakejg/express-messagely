@@ -28,8 +28,8 @@ router.post('/login', async (req, res, next) => {
                 username: user.username,
                 name: user.firstName
             }
-            const token = jwt.sign(payload, SECRET_KEY)  
-            return res.json({token})
+            const _token = jwt.sign(payload, SECRET_KEY)  
+            return res.json({_token})
         }
         else{
             throw new ExpressError("Password/username do not match", 400)
@@ -44,7 +44,7 @@ router.post('/login', async (req, res, next) => {
 
 /** POST /register - register user: registers, logs in, and returns token.
  *
- * {username, password, first_name, last_name, phone} => {token}.
+ * {username, password, firstName, lastName, phone} => {token}.
  *
  *  Make sure to update their last-login!
  */
@@ -59,8 +59,8 @@ router.post('/login', async (req, res, next) => {
             username: user.username,
             name: user.firstName
         }
-        const token = jwt.sign(payload, SECRET_KEY)  
-        return res.json({token})
+        const _token = jwt.sign(payload, SECRET_KEY)  
+        return res.json({_token})
     }
     catch(e){
         next(e)
