@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const ExpressError = require("../expressError");
 const { SECRET_KEY } = require("../config");
 const { ensureLoggedIn } = require("../middleware/auth");
+const client = require('../send_sms');
 
 /** GET /:id - get detail of message.
  *
@@ -45,6 +46,12 @@ router.post('/', ensureLoggedIn, async(req, res, next) => {
     try{
         const { to_username, body } = req.body;
         const message = await Message.create({from_username: req.user.username, to_username, body})
+        const to_user = await User.get(to_username);
+        client.messages.create({
+            body: body,
+            from: "+12057496203",
+            to: to_user.phone
+        })
         return res.json({message});
     }
     catch(e){
