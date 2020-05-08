@@ -6,7 +6,7 @@ const db = require("../db");
 const User = require("../models/user");
 
 
-describe("Auth Routes Test", async function () {
+describe("Auth Routes Test", function () {
 
   beforeEach(async function () {
     await db.query("DELETE FROM messages");
@@ -15,10 +15,11 @@ describe("Auth Routes Test", async function () {
     let u1 = await User.register({
       username: "test1",
       password: "password",
-      first_name: "Test1",
-      last_name: "Testy1",
+      firstName: "Test1",
+      lastName: "Testy1",
       phone: "+14155550000",
     });
+    await u1.save()
   });
 
   /** POST /auth/register => token  */
@@ -30,14 +31,15 @@ describe("Auth Routes Test", async function () {
         .send({
           username: "bob",
           password: "secret",
-          first_name: "Bob",
-          last_name: "Smith",
+          firstName: "Bob",
+          lastName: "Smith",
           phone: "+14150000000"
         });
-
-      let token = response.body.token;
+        console.log(response.body)
+      let token = response.body._token;
       expect(jwt.decode(token)).toEqual({
         username: "bob",
+        name: "Bob",
         iat: expect.any(Number)
       });
     });
@@ -51,9 +53,10 @@ describe("Auth Routes Test", async function () {
         .post("/auth/login")
         .send({ username: "test1", password: "password" });
 
-      let token = response.body.token;
+      let token = response.body._token;
       expect(jwt.decode(token)).toEqual({
         username: "test1",
+        name: "Test1",
         iat: expect.any(Number)
       });
     });
@@ -69,7 +72,7 @@ describe("Auth Routes Test", async function () {
       let response = await request(app)
         .post("/auth/login")
         .send({ username: "not-user", password: "password" });
-      expect(response.statusCode).toEqual(400);
+      expect(response.statusCode).toEqual(404);
     });
   });
 });
